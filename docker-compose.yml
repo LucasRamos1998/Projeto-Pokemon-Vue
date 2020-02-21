@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  api:
+    container_name: poke-api
+    image: node:10
+    networks:
+      - db
+    ports:
+      - "3030:3030"
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - mongo
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+
+  client:
+    container_name: poke-client
+    image: node:10
+    networks:
+      - db
+    ports:
+      - "8080:8080"
+    command: sh -c "npm install && npm run serve"
+    depends_on:
+      - mongo
+      - api
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+
+  mongo:
+    container_name: poke-mongo
+    image: mongo
+    networks:
+      - db
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_USER: root
+      MONGODB_PASS: root
+      MONGO_DATA_DIR: /data/db
+
+networks:
+  db:
+
+volumes:
+  mongo_data:
